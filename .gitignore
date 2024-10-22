@@ -1,0 +1,51 @@
+# Common files
+*.log
+*.env
+.env.*
+.DS_Store
+node_modules/
+build/
+dist/
+.cache/
+.vscode/
+.idea/
+
+# Frontend (React, Vite, TypeScript)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.env.test.local
+frontend/.next/
+frontend/out/
+frontend/vite.config.ts
+frontend/yarn.lock
+frontend/package-lock.json
+
+# Backend (Flask, Python)
+backend/venv/
+backend/.env
+backend/.env.*
+backend/__pycache__/
+backend/instance/
+backend/*.pyc
+backend/*.pyo
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/.coverage
+backend/coverage/
+backend/htmlcov/
+backend/.DS_Store
+backend/.idea/
+backend/*.sqlite3
+backend/data
+
+# Pytest
+*.pytest_cache/
+.coverage
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*.so
+*.egg-info/
