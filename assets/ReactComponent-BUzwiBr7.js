@@ -1,0 +1,2 @@
+import{o as s,u as i,a as h,R as n}from"./index-Cb9Tbun5.js";import{B as l}from"./BaseDisplayComponent-5L8l9zDl.js";const u=s(function({model:t}){const o=i.getContainingView(t),e=Math.round(o.dynamicBlocks.totalWidthPx),a=t.height,c=h.useCallback(r=>{t.setRef(r)},[t,e,a]);return n.createElement("canvas",{"data-testid":"arc-canvas",ref:c,style:{width:e,height:a,position:"absolute"},width:e*2,height:a*2})}),d=s(function({model:t}){return n.createElement(l,{model:t},n.createElement(u,{model:t}))});export{d as default};
+//# sourceMappingURL=ReactComponent-BUzwiBr7.js.map
