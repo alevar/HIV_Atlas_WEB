@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import Browser from '../../components/Browser/Browser';
-import GenomesTable from '../../components/GenomesTable/GenomesTable';
-import Spinner from '../../components/Spinner/Spinner';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import Browser from '../Browser/Browser';
+import GenomesTable from '../GenomesTable/GenomesTable';
+import Spinner from '../Spinner/Spinner';
+import DownloadModal from '../DownloadModal/DownloadModal';
 
 import { DB, DBRow } from '../../types';
 
@@ -10,6 +13,8 @@ const Home: React.FC = () => {
   const [db, setDB] = useState<DB>({ rows: [], reference: '', map: {} });
   const [selectedAccession, setSelectedAccession] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+  const [cancelDownload, setCancelDownload] = useState(false);
 
   useEffect(() => {
     const loadDB = async () => {
@@ -53,23 +58,58 @@ const Home: React.FC = () => {
     loadDB();
   }, []);
 
-  const handleDownload = (accession_ids: string[]) => {
-    fetch('http://localhost:5000/api/download/genome_', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessions: accession_ids }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `hiv_atlas.zip`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      })
-      .catch(error => console.error('Download failed:', error));
+  const handleDownload = async (accession_ids: string[]) => {
+    setDownloading(true);
+    setCancelDownload(false);
+    
+    const zip = new JSZip();
+
+    for (const accession_id of accession_ids) {
+      if (cancelDownload) {
+        setDownloading(false);
+        return;
+      }
+
+      const folder = zip.folder(accession_id);
+      if (!folder) continue;
+
+      try {
+        const fastaResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.fasta`);
+        const gtfResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.gtf`);
+
+        if (fastaResponse.ok) {
+          const fastaText = await fastaResponse.text();
+          folder.file(`${accession_id}.fasta`, fastaText);
+        } else {
+          console.error(`Failed to fetch ${accession_id}.fasta`);
+        }
+
+        if (gtfResponse.ok) {
+          const gtfText = await gtfResponse.text();
+          folder.file(`${accession_id}.gtf`, gtfText);
+        } else {
+          console.error(`Failed to fetch ${accession_id}.gtf`);
+        }
+      } catch (error) {
+        console.error(`Error fetching files for ${accession_id}:`, error);
+      }
+    }
+
+    if (!cancelDownload) {
+      try {
+        const content = await zip.generateAsync({ type: 'blob' });
+        saveAs(content, 'hiv_atlas.zip');
+      } catch (error) {
+        console.error('Error generating zip file:', error);
+      }
+    }
+
+    setDownloading(false);
+  };
+
+  const handleModalClose = () => {
+    setCancelDownload(true);
+    setDownloading(false);
   };
 
   if (loading) {
@@ -94,6 +134,7 @@ const Home: React.FC = () => {
           />
         </Col>
       </Row>
+      <DownloadModal show={downloading} onCancel={handleModalClose} />
     </Container>
   );
 };
