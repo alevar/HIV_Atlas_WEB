@@ -20,7 +20,7 @@ const Home: React.FC = () => {
     const loadDB = async () => {
       try {
         const response = await fetch(
-          'https://raw.githubusercontent.com/alevar/HIV_Atlas/main/hiv_atlas.db.tsv'
+          'https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/hiv_atlas.db.tsv'
         );
         const text = await response.text();
         const rows: DBRow[] = [];
@@ -74,8 +74,8 @@ const Home: React.FC = () => {
       if (!folder) continue;
 
       try {
-        const fastaResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.fasta`);
-        const gtfResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.gtf`);
+        const fastaResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.fasta`);
+        const gtfResponse = await fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gtf`);
 
         if (fastaResponse.ok) {
           const fastaText = await fastaResponse.text();

@@ -6,7 +6,6 @@ import Home from './components/Home/Home';
 import About from './components/About/About';
 import ContactUs from './components/ContactUs/ContactUs';
 
-// Define a layout that includes the Footer
 const Layout: React.FC = () => (
   <>
     <Header />
@@ -18,7 +17,7 @@ const Layout: React.FC = () => (
 const routes = [
   { 
     path: '/', 
-    element: <Layout />,  // Wrap routes with the layout
+    element: <Layout />,
     children: [
       { path: '/', element: <Home /> },
       { path: '/about', element: <About /> },
@@ -27,7 +26,6 @@ const routes = [
   }
 ];
 
-// Create the router with the basename
 const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
 
 const App: React.FC = () => {

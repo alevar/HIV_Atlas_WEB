@@ -9,11 +9,11 @@ export const getTracks = (accession_id: string) => {
       adapter: {
         type: 'Gff3TabixAdapter',
         gffGzLocation: {
-          uri: `https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.gff.gz`,
+          uri: `https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gff.gz`,
         },
         index: {
           location: {
-            uri: `https://raw.githubusercontent.com/alevar/HIV_Atlas/main/data/${accession_id}/${accession_id}.gff.gz.tbi`,
+            uri: `https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gff.gz.tbi`,
           },
           indexType: 'TBI',
         },
