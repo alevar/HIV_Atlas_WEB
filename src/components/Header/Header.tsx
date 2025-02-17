@@ -1,63 +1,89 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Nav, Navbar } from 'react-bootstrap';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import React, { useState, useContext } from 'react';
+import { Container, Row, Col, Nav, Form } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
+import { DBContext } from '../../App';
 import HomeHelp from '../HomeHelp/HomeHelp';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Import the logos from assets
 import ccb_logo from '../../assets/ccb.logo.svg';
 import hiv_atlas_logo from '../../assets/hiv_atlas.logo.crop.svg';
-
 import './Header.css';
 
 const Header: React.FC = () => {
-    const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const { db, selectedTaxid, setSelectedTaxid, selectedAccession } = useContext(DBContext);
+  const navigate = useNavigate();
 
-    const handleShow = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
 
-    return (
-        <div className="bg-light border-bottom shadow-sm">
-            <header className="header py-3">
-                <Container>
-                    <Row className="align-items-center">
-                        {/* HIV Atlas Logo */}
-                        <Col md={3}>
-                            <Nav.Link href="/" className="d-flex align-items-center">
-                                <div>
-                                    <img src={hiv_atlas_logo} alt="HIV Atlas Logo" style={{ height: '80px', marginRight: '15px' }} />
-                                </div>
-                                <h1 className="text-dark text-center" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '500' }}>HIV Atlas</h1>
-                            </Nav.Link>
-                        </Col>
+  const handleOrganismChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTaxid = event.target.value;
+    setSelectedTaxid(newTaxid);
+    
+    // Navigate to the reference genome for the new organism
+    const organismData = db[newTaxid];
+    const newAccession = organismData.reference || organismData.rows[0]?.accession_id;
+    if (newAccession) {
+      navigate(`/${newTaxid}/${newAccession}`);
+    }
+  };
 
-                        <Col md={7} className="text-end">
-                            <Nav className="justify-content-end">
-                                <i
-                                    className="bi bi-question-circle"
-                                    style={{ fontSize: '1.5rem', cursor: 'pointer', color: '#007bff' }}
-                                    onClick={handleShow}
-                                ></i>
-                                <Nav.Item>
-                                    <Nav.Link href="/about" className="nav-link">About</Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item>
-                                    <Nav.Link href="/contact_us" className="nav-link">Contact</Nav.Link>
-                                </Nav.Item>
-                            </Nav>
-                        </Col>
-
-                        <Col md={1} className="text-end">
-                            <Nav.Link href="https://ccb.jhu.edu/" className="d-flex align-items-center justify-content-end">
-                                <img src={ccb_logo} alt="CCB Logo" style={{ height: '80px', marginLeft: '15px' }} />
-                            </Nav.Link>
-                        </Col>
-                    </Row>
-                </Container>
-            </header>
-
-            <HomeHelp show={showModal} handleClose={handleClose} />
-        </div>
-    );
+  return (
+    <div className="bg-light border-bottom shadow-sm">
+      <header className="header py-3">
+        <Container>
+          <Row className="align-items-center">
+            <Col md={3}>
+              <Nav.Link href="/" className="d-flex align-items-center">
+                <div>
+                  <img src={hiv_atlas_logo} alt="HIV Atlas Logo" style={{ height: '80px', marginRight: '15px' }} />
+                </div>
+                <h1 className="text-dark text-center" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '500' }}>
+                  HIV Atlas
+                </h1>
+              </Nav.Link>
+            </Col>
+            <Col md={3}>
+              <Form.Select 
+                value={selectedTaxid} 
+                onChange={handleOrganismChange}
+                className="form-select-sm"
+              >
+                {Object.entries(db).map(([taxid, data]) => (
+                  <option key={taxid} value={taxid}>
+                    {data.organism}
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+            <Col md={4} className="text-end">
+              <Nav className="justify-content-end">
+                <i
+                  className="bi bi-question-circle"
+                  style={{ fontSize: '1.5rem', cursor: 'pointer', color: '#007bff' }}
+                  onClick={handleShow}
+                ></i>
+                <Nav.Item>
+                  <Nav.Link href="/about" className="nav-link">About</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link href="/contact_us" className="nav-link">Contact</Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Col>
+            <Col md={2} className="text-end">
+              <Nav.Link href="https://ccb.jhu.edu/" className="d-flex align-items-center justify-content-end">
+                <img src={ccb_logo} alt="CCB Logo" style={{ height: '80px', marginLeft: '15px' }} />
+              </Nav.Link>
+            </Col>
+          </Row>
+        </Container>
+      </header>
+      <HomeHelp show={showModal} handleClose={handleClose} />
+    </div>
+  );
 };
 
 export default Header;
