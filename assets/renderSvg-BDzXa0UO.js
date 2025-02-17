@@ -1,0 +1,2 @@
+import{K as c,u as i,R as t,Y as l}from"./rpcWorker-CL9qhe4-.js";async function g(e,a,n){await c(()=>!!e.stats&&!!e.regionCannotBeRenderedText);const{needsScalebar:r,stats:o}=e,{offsetPx:s}=i.getContainingView(e);return t.createElement(t.Fragment,null,t.createElement("g",{id:"snpcov"},await n(a)),r&&o?t.createElement("g",{transform:`translate(${Math.max(-s,0)})`},t.createElement(l,{model:e,orientation:"left"})):null)}export{g as renderSvg};
+//# sourceMappingURL=renderSvg-BDzXa0UO.js.map

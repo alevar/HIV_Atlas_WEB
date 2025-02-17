@@ -1,2 +1,0 @@
-import{c as o,i as l}from"./rpcWorker-DOy5Xw-Q.js";class m extends o.BaseAdapter{async getRefNameAliases(){const t=this.getConf("location");if(t.uri===""||t.uri==="/path/to/my/aliases.txt")return[];const a=await l.openLocation(t,this.pluginManager).readFile("utf8"),r=this.getConf("refNameColumn");return a.trim().split(/\n|\r\n|\r/).filter(e=>!!e&&!e.startsWith("#")).map(e=>{const s=e.split("	"),[i]=s.splice(r,1);return{refName:i,aliases:s.filter(n=>!!n.trim())}})}async freeResources(){}}export{m as default};
-//# sourceMappingURL=RefNameAliasAdapter-B1gb-7VT.js.map
