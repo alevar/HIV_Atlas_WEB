@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
+import { createHashRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Home from './components/Home/Home';
@@ -38,6 +38,12 @@ const App: React.FC = () => {
   const [selectedAccession, setSelectedAccession] = useState<string | null>('K03455.1');
   const [loading, setLoading] = useState(true);
   const [defaultRoute, setDefaultRoute] = useState<string>('');
+
+  console.log({
+    BASE_URL: import.meta.env.BASE_URL,
+    location: window.location.href,
+    pathname: window.location.pathname
+  });
 
   useEffect(() => {
     const loadDB = async () => {
@@ -132,7 +138,7 @@ const App: React.FC = () => {
     }
   ];
 
-  const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
+  const router = createHashRouter(routes);
 
   if (loading) {
     return <Spinner />;
