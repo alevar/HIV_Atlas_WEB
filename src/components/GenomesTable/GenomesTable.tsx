@@ -3,6 +3,7 @@ import { Table, Row, Col, Button, InputGroup, FormControl, Pagination } from 're
 import { debounce } from 'lodash';
 
 import { DBRow } from '../../types';
+import AnnotationScoreIcon from '../AnnotationScoreIcon/AnnotationScoreIcon';
 
 import './GenomesTable.css';
 
@@ -142,7 +143,9 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
             >
               <td>{genome.accession_id}</td>
               <td>{genome.description}</td>
-              <td>{genome.genome_annotation_score.toFixed(2)}</td>
+              <td>
+                <AnnotationScoreIcon score={genome.genome_annotation_score*100} size={36} />
+              </td>
               <td>
                 <Button variant="primary" onClick={() => handleDownload([genome.accession_id])}>
                   Download

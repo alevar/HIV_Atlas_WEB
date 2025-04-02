@@ -1,32 +1,43 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { DBContext } from '../../App';
+import { DBRow } from '../../types';
 import Browser from '../Browser/Browser';
 import GenomesTable from '../GenomesTable/GenomesTable';
-import Spinner from '../Spinner/Spinner';
 import DownloadModal from '../DownloadModal/DownloadModal';
+import AnnotationScoreIcon from '../AnnotationScoreIcon/AnnotationScoreIcon';
 
 const Home: React.FC = () => {
   const { db, selectedTaxid, selectedAccession, setSelectedAccession } = useContext(DBContext);
+  const [accessionData, setAccessionData] = useState<DBRow | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [cancelDownload, setCancelDownload] = useState(false);
   const { taxid, accession } = useParams();
   const navigate = useNavigate();
 
-  // Update selected accession when URL params change
+  const currentOrganismData = db[selectedTaxid] || { rows: [] };
+
+  useEffect(() => {
+    if (selectedAccession && db[selectedTaxid]?.map) {
+      const accessionIndex = db[selectedTaxid].map[selectedAccession];
+      if (accessionIndex !== undefined) {
+        setAccessionData(db[selectedTaxid].rows[accessionIndex]);
+      }
+    } else {
+      setAccessionData(null);
+    }
+  }, [selectedAccession, selectedTaxid, db]);
+
   useEffect(() => {
     if (accession && accession !== selectedAccession) {
       setSelectedAccession(accession);
     }
-  }, [accession, setSelectedAccession]);
+  }, [accession, selectedAccession, setSelectedAccession]);
 
-  // Get the rows for the selected organism
-  const currentOrganismData = db[selectedTaxid] || { rows: [] };
-
-  const handleDownload = async (accession_ids: string[]) => {
+  const handleDownload = useCallback(async (accession_ids: string[]) => {
     setDownloading(true);
     setCancelDownload(false);
 
@@ -42,12 +53,10 @@ const Home: React.FC = () => {
       if (!folder) continue;
 
       try {
-        const fastaResponse = await fetch(
-          `https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.fasta`
-        );
-        const gtfResponse = await fetch(
-          `https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gtf`
-        );
+        const [fastaResponse, gtfResponse] = await Promise.all([
+          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.fasta`),
+          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gtf`)
+        ]);
 
         if (fastaResponse.ok) {
           const fastaText = await fastaResponse.text();
@@ -74,29 +83,53 @@ const Home: React.FC = () => {
     }
 
     setDownloading(false);
-  };
+  }, [db, selectedTaxid, cancelDownload]);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setCancelDownload(true);
     setDownloading(false);
-  };
+  }, []);
 
-  const handleAccessionChange = (newAccession: string) => {
+  const handleAccessionChange = useCallback((newAccession: string) => {
     navigate(`/${selectedTaxid}/${newAccession}`);
+  }, [navigate, selectedTaxid]);
+
+  const renderAccessionContent = () => {
+    if (!selectedAccession || !accessionData) {
+      return (
+        <Row className="my-4">
+          <Col>
+            <h2>Select a genome from the table below to view details</h2>
+          </Col>
+        </Row>
+      );
+    }
+
+    return (
+      <>
+        <Row className="my-4">
+          <Col>
+            <h1>
+              {selectedAccession}
+              {accessionData.genome_annotation_score && (
+                <AnnotationScoreIcon score={accessionData.genome_annotation_score * 100} size={36} />
+              )}
+            </h1>
+            <p>{accessionData.description}</p>
+          </Col>
+        </Row>
+        <Row className="my-4">
+          <Col>
+            <Browser accession_id={selectedAccession} />
+          </Col>
+        </Row>
+      </>
+    );
   };
 
   return (
     <Container>
-      <Row className="my-4">
-        <Col>
-          <h1>{selectedAccession}</h1>
-        </Col>
-      </Row>
-      <Row className="my-4">
-        <Col>
-          <Browser accession_id={selectedAccession} />
-        </Col>
-      </Row>
+      {renderAccessionContent()}
       <Row className="my-4">
         <Col>
           <GenomesTable
