@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Row, Col, Button, InputGroup, FormControl, Pagination } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Table, Row, Col, Button, InputGroup, FormControl, Pagination, Badge, Form, Dropdown } from 'react-bootstrap';
 import { debounce } from 'lodash';
 
 import { DBRow } from '../../types';
@@ -24,27 +24,60 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedSubtype, setSelectedSubtype] = useState<string>('');
   const [filteredData, setFilteredData] = useState<DBRow[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof DBRow>('accession_id');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const debouncedSearch = debounce((value: string) => {
-    setFilteredData(
-      data.filter(
+  // Extract unique subtypes from data
+  const availableSubtypes = useMemo(() => {
+    const subtypes = new Set<string>();
+    data.forEach(genome => {
+      if (genome.subtype) {
+        subtypes.add(genome.subtype);
+      }
+    });
+    return Array.from(subtypes).sort();
+  }, [data]);
+
+  const applyFilters = (term: string, subtype: string) => {
+    let filtered = data;
+
+    // Apply text search
+    if (term) {
+      filtered = filtered.filter(
         genome =>
-          genome.accession_id.toLowerCase().includes(value.toLowerCase()) ||
-          genome.description.toLowerCase().includes(value.toLowerCase())
-      )
-    );
+          genome.accession_id.toLowerCase().includes(term.toLowerCase()) ||
+          genome.description.toLowerCase().includes(term.toLowerCase()) ||
+          (genome.name && genome.name.toLowerCase().includes(term.toLowerCase())) ||
+          (genome.country && genome.country.toLowerCase().includes(term.toLowerCase())) ||
+          (genome.year && genome.year.toString().includes(term))
+      );
+    }
+
+    // Apply subtype filter
+    if (subtype) {
+      filtered = filtered.filter(genome => genome.subtype === subtype);
+    }
+
+    setFilteredData(filtered);
     setCurrentPage(1); // Reset to first page after filtering
-  }, 1000);
+  };
+
+  const debouncedSearch = debounce((term: string, subtype: string) => {
+    applyFilters(term, subtype);
+  }, 300);
 
   useEffect(() => {
-    debouncedSearch(searchTerm);
+    setFilteredData(data);
+  }, [data]);
+
+  useEffect(() => {
+    debouncedSearch(searchTerm, selectedSubtype);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [searchTerm, data]);
+  }, [searchTerm, selectedSubtype, data]);
 
   useEffect(() => {
     // Sort data whenever the sort column or direction changes
@@ -63,6 +96,12 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
       setSortColumn(column);
       setSortDirection('asc');
     }
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedSubtype('');
+    setFilteredData(data);
   };
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -113,13 +152,49 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
 
   return (
     <div>
-      <InputGroup className="mb-3">
-        <FormControl
-          placeholder="Search genomes..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-        />
-      </InputGroup>
+      <Row className="mb-3">
+        <Col md={6}>
+          <InputGroup>
+            <FormControl
+              placeholder="Search genomes by ID, name, country, or year..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Col>
+        <Col md={4}>
+          <Form.Group>
+            <Form.Select 
+              value={selectedSubtype}
+              onChange={e => setSelectedSubtype(e.target.value)}
+              aria-label="Select subtype"
+            >
+              <option value="">All Subtypes</option>
+              {availableSubtypes.map(subtype => (
+                <option key={subtype} value={subtype}>{subtype}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+        <Col md={2}>
+          <Button 
+            variant="outline-secondary" 
+            onClick={clearFilters}
+            className="w-100"
+          >
+            Clear Filters
+          </Button>
+        </Col>
+      </Row>
+      
+      <div className="mb-2">
+        <strong>Results:</strong> {filteredData.length} genomes found
+        {selectedSubtype && (
+          <Badge bg="info" className="ms-2">
+            Subtype: {selectedSubtype} <span onClick={() => setSelectedSubtype('')} style={{cursor: 'pointer'}}>×</span>
+          </Badge>
+        )}
+      </div>
 
       <Table striped bordered hover>
         <thead>
@@ -127,9 +202,20 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
             <th onClick={() => handleSort('accession_id')} style={{ cursor: 'pointer' }}>
               Accession ID {sortColumn === 'accession_id' && (sortDirection === 'asc' ? '▲' : '▼')}
             </th>
-            <th>Description</th>
+            <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+              Name {sortColumn === 'name' && (sortDirection === 'asc' ? '▲' : '▼')}
+            </th>
+            <th onClick={() => handleSort('subtype')} style={{ cursor: 'pointer' }}>
+              Subtype {sortColumn === 'subtype' && (sortDirection === 'asc' ? '▲' : '▼')}
+            </th>
+            <th onClick={() => handleSort('country')} style={{ cursor: 'pointer' }}>
+              Country {sortColumn === 'country' && (sortDirection === 'asc' ? '▲' : '▼')}
+            </th>
+            <th onClick={() => handleSort('year')} style={{ cursor: 'pointer' }}>
+              Year {sortColumn === 'year' && (sortDirection === 'asc' ? '▲' : '▼')}
+            </th>
             <th onClick={() => handleSort('genome_annotation_score')} style={{ cursor: 'pointer' }}>
-              Annotation Score {sortColumn === 'genome_annotation_score' && (sortDirection === 'asc' ? '▲' : '▼')}
+              Score {sortColumn === 'genome_annotation_score' && (sortDirection === 'asc' ? '▲' : '▼')}
             </th>
             <th>Download</th>
           </tr>
@@ -142,12 +228,22 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
               className={genome.accession_id === selectedAccession ? 'selected' : ''}
             >
               <td>{genome.accession_id}</td>
-              <td>{genome.description}</td>
+              <td>{genome.name || '-'}</td>
+              <td>
+                {genome.subtype ? (
+                  <Badge bg="info">{genome.subtype}</Badge>
+                ) : '-'}
+              </td>
+              <td>{genome.country || '-'}</td>
+              <td>{genome.year || '-'}</td>
               <td>
                 <AnnotationScoreIcon score={genome.genome_annotation_score*100} size={36} />
               </td>
               <td>
-                <Button variant="primary" onClick={() => handleDownload([genome.accession_id])}>
+                <Button variant="primary" onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload([genome.accession_id]);
+                }}>
                   Download
                 </Button>
               </td>
@@ -156,21 +252,29 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
         </tbody>
       </Table>
 
-      <Row>
-        <Col>
-          <Pagination>{renderPagination()}</Pagination>
-        </Col>
-        <Col>
-          <Button
-            variant="success"
-            className="mt-3"
-            onClick={() => handleDownload(accessionIds)}
-            disabled={accessionIds.length === 0}
-          >
-            Download All
-          </Button>
-        </Col>
-      </Row>
+      {filteredData.length === 0 && (
+        <div className="text-center py-4">
+          <p>No genomes match your search criteria. Try adjusting your filters.</p>
+        </div>
+      )}
+
+      {filteredData.length > 0 && (
+        <Row>
+          <Col>
+            <Pagination>{renderPagination()}</Pagination>
+          </Col>
+          <Col className="text-end">
+            <Button
+              variant="success"
+              className="mt-3"
+              onClick={() => handleDownload(accessionIds)}
+              disabled={accessionIds.length === 0}
+            >
+              Download All {filteredData.length > 0 && `(${filteredData.length})`}
+            </Button>
+          </Col>
+        </Row>
+      )}
     </div>
   );
 };

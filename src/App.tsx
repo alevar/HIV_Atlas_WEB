@@ -57,7 +57,7 @@ const App: React.FC = () => {
         // First pass: organize rows by taxid
         text.split('\n').forEach((line) => {
           if (!line) return;
-          const [accession_id, taxid, organism, is_reference, genome_annotation_score, description] = line.split('\t');
+          const [accession_id, taxid, organism, is_reference, genome_annotation_score, description, name, subtype, country, year] = line.split('\t');
           if (!accession_id) return;
 
           if (!tempDB[taxid]) {
@@ -77,7 +77,11 @@ const App: React.FC = () => {
             organism,
             is_reference: is_reference === '1',
             genome_annotation_score: parseFloat(genome_annotation_score),
-            description
+            description,
+            name,
+            subtype,
+            country,
+            year: parseInt(year)
           });
 
           // Set reference if this is a reference genome

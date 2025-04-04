@@ -5,6 +5,10 @@ export interface DBRow {
     is_reference: boolean;
     genome_annotation_score: number;
     description: string;
+    name: string;
+    subtype: string;
+    country: string;
+    year: number;
 }
 
 export interface OrganismData {

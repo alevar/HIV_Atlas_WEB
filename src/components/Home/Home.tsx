@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Badge } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -110,11 +110,27 @@ const Home: React.FC = () => {
         <Row className="my-4">
           <Col>
             <h1>
-              {selectedAccession}
+              {selectedAccession} 
+              {accessionData.name && (
+                <span className="ms-2 text-muted">"{accessionData.name}"</span>
+              )}
               {accessionData.genome_annotation_score && (
-                <AnnotationScoreIcon score={accessionData.genome_annotation_score * 100} size={36} />
+                <span className="ms-2">
+                  <AnnotationScoreIcon score={accessionData.genome_annotation_score * 100} size={36} />
+                </span>
               )}
             </h1>
+            <div className="mb-3">
+              {accessionData.subtype && (
+                <Badge bg="info" className="me-2">Subtype: {accessionData.subtype}</Badge>
+              )}
+              {accessionData.country && (
+                <Badge bg="secondary" className="me-2">Country: {accessionData.country}</Badge>
+              )}
+              {accessionData.year && (
+                <Badge bg="dark">Year: {accessionData.year}</Badge>
+              )}
+            </div>
             <p>{accessionData.description}</p>
           </Col>
         </Row>
