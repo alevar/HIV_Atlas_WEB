@@ -1,2 +1,0 @@
-import{q as o,ac as c}from"./rpcWorker-CL9qhe4-.js";function f(t,n){return n.forEach(function(r){r&&typeof r!="string"&&!Array.isArray(r)&&Object.keys(r).forEach(function(e){if(e!=="default"&&!(e in t)){var a=Object.getOwnPropertyDescriptor(r,e);Object.defineProperty(t,e,a.get?a:{enumerable:!0,get:function(){return r[e]}})}})}),Object.freeze(t)}var s=c(),u=o(s),v=f({__proto__:null,default:u},[s]);export{v as c};
-//# sourceMappingURL=canvas2svg-CNezqPOL.js.map
