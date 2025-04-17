@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Container, Row, Col, Nav, Form } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DBContext } from '../../App';
 import HomeHelp from '../HomeHelp/HomeHelp';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -36,14 +36,14 @@ const Header: React.FC = () => {
         <Container>
           <Row className="align-items-center">
             <Col md={3}>
-              <Nav.Link href="/" className="d-flex align-items-center">
+              <Link to="/" className="d-flex align-items-center">
                 <div>
                   <img src={hiv_atlas_logo} alt="HIV Atlas Logo" style={{ height: '80px', marginRight: '15px' }} />
                 </div>
                 <h1 className="text-dark text-center" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '500' }}>
                   HIV Atlas
                 </h1>
-              </Nav.Link>
+              </Link>
             </Col>
             <Col md={3}>
               <Form.Select 
@@ -66,10 +66,13 @@ const Header: React.FC = () => {
                   onClick={handleShow}
                 ></i>
                 <Nav.Item>
-                  <Nav.Link href="/about" className="nav-link">About</Nav.Link>
+                  <Link to="/tutorials">Tutorials</Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href="/contact_us" className="nav-link">Contact</Nav.Link>
+                  <Link to="/about">About</Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Link to="/contact_us">Contact</Link>
                 </Nav.Item>
               </Nav>
             </Col>

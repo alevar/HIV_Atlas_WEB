@@ -4,6 +4,7 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Home from './components/Home/Home';
 import About from './components/About/About';
+import Tutorials from './components/Tutorials/Tutorials';
 import ContactUs from './components/ContactUs/ContactUs';
 import Spinner from './components/Spinner/Spinner';
 import { DB } from './types';
@@ -131,12 +132,16 @@ const App: React.FC = () => {
           element: <Home />
         },
         { 
-          path: '/about', 
+          path: 'about', 
           element: <About /> 
         },
         { 
-          path: '/contact_us', 
+          path: 'contact_us', 
           element: <ContactUs /> 
+        },
+        {
+          path: 'tutorials',
+          element: <Tutorials />
         },
       ]
     }
