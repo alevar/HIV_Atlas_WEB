@@ -59,20 +59,22 @@ const Header: React.FC = () => {
               </Form.Select>
             </Col>
             <Col md={4} className="text-end">
-              <Nav className="justify-content-end">
-                <i
-                  className="bi bi-question-circle"
-                  style={{ fontSize: '1.5rem', cursor: 'pointer', color: '#007bff' }}
-                  onClick={handleShow}
-                ></i>
+              <Nav className="justify-content-end align-items-center">
                 <Nav.Item>
-                  <Link to="/tutorials">Tutorials</Link>
+                  <i
+                    className="bi bi-question-circle nav-link"
+                    style={{ fontSize: '1.5rem', cursor: 'pointer', border: 'none', background: 'none' }}
+                    onClick={handleShow}
+                  ></i>
                 </Nav.Item>
                 <Nav.Item>
-                  <Link to="/about">About</Link>
+                  <Link to="/tutorials" className="nav-link">Tutorials</Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Link to="/contact_us">Contact</Link>
+                  <Link to="/about" className="nav-link">About</Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Link to="/contact_us" className="nav-link">Contact</Link>
                 </Nav.Item>
               </Nav>
             </Col>

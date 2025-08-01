@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { Table, Row, Col, Button, InputGroup, FormControl, Pagination, Badge, Form, Dropdown } from 'react-bootstrap';
 import { debounce } from 'lodash';
 
 import { DBRow } from '../../types';
+import { DBContext } from '../../App';
 import AnnotationScoreIcon from '../AnnotationScoreIcon/AnnotationScoreIcon';
+import { 
+  trackTableSearch, 
+  trackTableRowClick, 
+  trackGenomeDownload, 
+  trackBulkDownload,  
+} from '../../utils/analytics';
 
 import './GenomesTable.css';
 
@@ -22,12 +29,16 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
   selectedAccession,
   setSelectedAccession,
 }) => {
+  const { selectedTaxid, db } = useContext(DBContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedSubtype, setSelectedSubtype] = useState<string>('');
   const [filteredData, setFilteredData] = useState<DBRow[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof DBRow>('accession_id');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Get organism name for analytics
+  const organismName = db[selectedTaxid]?.organism || 'Unknown';
 
   // Extract unique subtypes from data
   const availableSubtypes = useMemo(() => {
@@ -66,6 +77,10 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
 
   const debouncedSearch = debounce((term: string, subtype: string) => {
     applyFilters(term, subtype);
+    if (term || subtype) {
+      const searchDescription = [term, subtype].filter(Boolean).join(' + ');
+      trackTableSearch(searchDescription, filteredData.length, organismName);
+    }
   }, 300);
 
   useEffect(() => {
@@ -90,8 +105,10 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
   }, [sortColumn, sortDirection]);
 
   const handleSort = (column: keyof DBRow) => {
+    const newDirection = sortColumn === column ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc';
+    
     if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(newDirection);
     } else {
       setSortColumn(column);
       setSortDirection('asc');
@@ -224,7 +241,10 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
           {paginatedData.map(genome => (
             <tr
               key={genome.accession_id}
-              onClick={() => setSelectedAccession(genome.accession_id)}
+              onClick={() => {
+                setSelectedAccession(genome.accession_id);
+                trackTableRowClick(genome.accession_id, genome.name, organismName);
+              }}
               className={genome.accession_id === selectedAccession ? 'selected' : ''}
             >
               <td>{genome.accession_id}</td>
@@ -243,6 +263,7 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
                 <Button variant="primary" onClick={(e) => {
                   e.stopPropagation();
                   handleDownload([genome.accession_id]);
+                  trackGenomeDownload(genome.accession_id, genome.name, organismName);
                 }}>
                   Download
                 </Button>
@@ -267,7 +288,10 @@ const GenomesTable: React.FC<PaginatedTableProps> = ({
             <Button
               variant="success"
               className="mt-3"
-              onClick={() => handleDownload(accessionIds)}
+              onClick={() => {
+                handleDownload(accessionIds);
+                trackBulkDownload(accessionIds, organismName);
+              }}
               disabled={accessionIds.length === 0}
             >
               Download All {filteredData.length > 0 && `(${filteredData.length})`}

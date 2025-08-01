@@ -18,10 +18,12 @@ const Footer: React.FC = () => {
                         </Col>
                         
                         <Col md={2}>
-                            <a className="text-muted">CCB &copy; {new Date().getFullYear()}</a>
+                            <div className="text-muted">
+                                <div>CCB &copy; {new Date().getFullYear()}</div>
+                            </div>
                         </Col>
                         
-                        <Col md={4} className="text-center">
+                        <Col md={3} className="text-center">
                             <ul className="nav">
                                 <li className="nav-item"><a href="#" className="nav-link px-2 text-body-secondary">Home</a></li>
                                 <li className="nav-item"><a href="#" className="nav-link px-2 text-body-secondary">Contact Us</a></li>
@@ -30,7 +32,14 @@ const Footer: React.FC = () => {
                         </Col>
                         
                         <Col md={3}>
-                            <a href="/privacy-policy">Privacy Policy</a> | <a href="/terms-of-service">Terms of Service</a>
+                            <div className="text-center">
+                                <div style={{ fontSize: '0.9rem', marginBottom: '5px' }}>
+                                    <strong>HIV Atlas</strong> - <a href="https://ccb.jhu.edu/HIV_Atlas/" target="_blank" rel="noopener noreferrer">ccb.jhu.edu/HIV_Atlas</a>
+                                </div>
+                                <div style={{ fontSize: '0.8rem' }}>
+                                    <a href="/privacy-policy">Privacy Policy</a> | <a href="/terms-of-service">Terms of Service</a>
+                                </div>
+                            </div>
                         </Col>
                         
                         <Col md={1}>

@@ -2,8 +2,18 @@
   "name": "hiv-atlas",
   "homepage": "https://ccb.jhu.edu/HIV_Atlas",
   "type": "module",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
+  "description": "HIV Atlas - A comprehensive genomic resource for HIV research with interactive genome browser and comparative analysis tools",
+  "keywords": ["HIV", "genomics", "bioinformatics", "genome browser", "research", "Johns Hopkins University"],
+  "author": "Ales Varabyou <avarabyou@jhu.edu>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ccb-jhu/HIV_Atlas"
+  },
+  "bugs": {
+    "url": "https://github.com/ccb-jhu/HIV_Atlas/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
