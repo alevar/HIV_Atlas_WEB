@@ -53,9 +53,11 @@ const Home: React.FC = () => {
       if (!folder) continue;
 
       try {
-        const [fastaResponse, gtfResponse] = await Promise.all([
+        const [fastaResponse, faiResponse, gffResponse, gffTbiResponse] = await Promise.all([
           fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.fasta`),
-          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gtf`)
+          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.fasta.fai`),
+          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gff.gz`),
+          fetch(`https://raw.githubusercontent.com/alevar/HIV_Atlas_Data/main/data/${accession_id}/${accession_id}.gff.gz.tbi`)
         ]);
 
         if (fastaResponse.ok) {
@@ -63,9 +65,19 @@ const Home: React.FC = () => {
           folder.file(`${accession_id}.fasta`, fastaText);
         }
 
-        if (gtfResponse.ok) {
-          const gtfText = await gtfResponse.text();
-          folder.file(`${accession_id}.gtf`, gtfText);
+        if (faiResponse.ok) {
+          const faiText = await faiResponse.text();
+          folder.file(`${accession_id}.fasta.fai`, faiText);
+        }
+
+        if (gffResponse.ok) {
+          const gffText = await gffResponse.text();
+          folder.file(`${accession_id}.gtf`, gffText);
+        }
+
+        if (gffTbiResponse.ok) {
+          const gffTbiText = await gffTbiResponse.text();
+          folder.file(`${accession_id}.gff.gz.tbi`, gffTbiText);
         }
       } catch (error) {
         console.error(`Error fetching files for ${accession_id}:`, error);
