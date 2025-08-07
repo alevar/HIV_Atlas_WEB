@@ -1,8 +1,15 @@
 User-agent: *
 Allow: /
 
+# Allow crawling of all genome pages
+Allow: /#/*
+
 # Sitemap location
 Sitemap: https://ccb.jhu.edu/HIV_Atlas/sitemap.xml
 
 # Crawl-delay for respectful crawling
-Crawl-delay: 1 
+Crawl-delay: 1
+
+# Additional instructions for search engines
+# This site contains HIV genome annotation data and research resources
+# All content is freely available for research purposes 

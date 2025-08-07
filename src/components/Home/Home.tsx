@@ -9,6 +9,7 @@ import Browser from '../Browser/Browser';
 import GenomesTable from '../GenomesTable/GenomesTable';
 import DownloadModal from '../DownloadModal/DownloadModal';
 import AnnotationScoreIcon from '../AnnotationScoreIcon/AnnotationScoreIcon';
+import SEO from '../SEO/SEO';
 
 const Home: React.FC = () => {
   const { db, selectedTaxid, selectedAccession, setSelectedAccession } = useContext(DBContext);
@@ -156,21 +157,27 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Container>
-      {renderAccessionContent()}
-      <Row className="my-4">
-        <Col>
-          <GenomesTable
-            data={currentOrganismData.rows}
-            rowsPerPage={5}
-            handleDownload={handleDownload}
-            selectedAccession={selectedAccession}
-            setSelectedAccession={handleAccessionChange}
-          />
-        </Col>
-      </Row>
-      <DownloadModal show={downloading} onCancel={handleModalClose} />
-    </Container>
+    <>
+      <SEO 
+        accessionData={accessionData} 
+        organism={currentOrganismData.organism || 'HIV'} 
+      />
+      <Container>
+        {renderAccessionContent()}
+        <Row className="my-4">
+          <Col>
+            <GenomesTable
+              data={currentOrganismData.rows}
+              rowsPerPage={5}
+              handleDownload={handleDownload}
+              selectedAccession={selectedAccession}
+              setSelectedAccession={handleAccessionChange}
+            />
+          </Col>
+        </Row>
+        <DownloadModal show={downloading} onCancel={handleModalClose} />
+      </Container>
+    </>
   );
 };
 
